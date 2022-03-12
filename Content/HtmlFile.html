@@ -1,0 +1,195 @@
+<!-- @{
+    ViewBag.Title = "About";
+} -->
+<link href="Content/jquery-ui.css" rel="stylesheet" />
+<link href="Content/imageMaker.css" rel="stylesheet" />
+<style>
+    .ui-rotatable-handle {
+        background-color: red;
+    }
+    .pDiv {
+        width: 125px;
+        height: 130px;
+        padding: 5px;
+        float: left;
+    }
+    .prDiv {
+        width: 125px;
+        height: 130px;
+        padding: 5px;
+        float: left;
+    }
+    #canvasDiv{
+        margin-top:100px;
+    }
+</style>
+<div>
+    <h1>Example</h1>
+
+    <table style="width:15%;float:right" class="table table-bordered">
+        <tbody>
+            <tr><td>Maximum Patches</td><td id="mPatch"></td></tr>
+            <tr><td>Applied Patches</td><td id="aPatch">0</td></tr>
+            <tr><td>Remaining Patches</td><td id="rPatch"></td></tr>
+        </tbody>
+    </table>
+</div>
+<div id="drop" style="z-index:0"></div>
+<div id="drag" style=""></div>
+<div id="reserve"></div>
+<!-- @*<div id="canvasDiv">
+    <canvas id="canvas"></canvas>
+</div>*@ -->
+<button id="export" style="margin-top:20px;background:black; color:white;" class="btn btn-primary">SAVE CUSTOM IMAGE</button>
+<div id="output"></div>
+<script src="Scripts/jquery-3.6.0.min.js"></script>
+<script src="Scripts/jquery-ui.min.js"></script>
+<script src="Scripts/jquery.ui.touch-punch.min.js"></script>
+<script src="Scripts/jquery.ui.rotatable.js"></script>
+<script src="Scripts/html2canvas.min.js"></script>
+<script>
+    /*
+    var canvas = document.getElementById("canvas"),
+        ctx = canvas.getContext("2d");
+
+    canvas.width = 500;
+    canvas.height = 500;
+
+
+    var background = new Image();
+    background.src = '../assets/design/t-shirt-white.png';
+
+    // Make sure the image is loaded first otherwise nothing will draw.
+    background.onload = function () {
+        ctx.drawImage(background, 0, 0,500,500);
+    }
+    */
+    var templates = [{
+        url: 'Content/custom-vegan-leather-backpack-white.png', title: 'Vegan Leather Backpack', maxPatch: 3
+    }]
+    $("#mPatch").html(templates[0].maxPatch);
+    $("#rPatch").html(templates[0].maxPatch);
+    var dropImg = '<img width=500 src="' + templates[0].url + '" />';
+    $("#drop").html(dropImg);
+    var dragArr = [{ url: 'Content/letters/pink-varsity-a.png', title: 'pink-varsity-a' },
+        { url: 'Content/letters/pink-varsity-b.png', title: 'pink-varsity-b' },
+        { url: 'Content/letters/pink-varsity-c.png', title: 'pink-varsity-c' },
+        { url: 'Content/letters/pink-varsity-d.png', title: 'pink-varsity-d' },
+        { url: 'Content/letters/pink-varsity-e.png', title: 'pink-varsity-e' },
+        { url: 'Content/letters/pink-varsity-f.png', title: 'pink-varsity-f' },
+    ]
+    var ImgArr = [];
+    dragArr.forEach((data, ind) => {
+        ImgArr.push({ "ind": ind, "src": data.url});
+        var Id = 'Img_' + ind;//"imageBoxDR" + '_' + ind + '_' + dragArr.length;
+
+        $("#drag").append('<img id="' + Id + '" style="margin-right:5%;cursor:pointer;width:100px;height:100px;" src="' + data.url + '" />');
+        $('#' + Id).draggable({
+            zIndex: 100,
+            revert: 'invalid',
+            stop: function () {
+                $(this).draggable('option', 'revert', 'invalid');
+            }
+        });
+    })
+    var pIndex = -1;
+    var selectImg = [];
+    $('#drop').droppable({
+        tolerance: 'intersect',
+        accept: function (d) {
+            var rPatch = parseInt($("#rPatch")[0].innerHTML);
+            if (rPatch > 0 || d[0].id.split('_')[0] == "imageBoxDR") { return true; } else { return false }
+        },
+        drop: function (event, ui) {
+            if (ui.draggable[0].id.split('_')[0] != "imageBoxDR") {
+                pIndex++;
+                var ind = ui.draggable[0].id.split('_')[1];
+                var id = "imageBoxDR_" + ind + '_' + pIndex;
+                var txt = '<div style="display:none" id="' + id + '" class="pDiv">' +
+                    '<button id="del_' + pIndex + '" class="delete-box-amm delete-pr-merge-image" ></button > ' +
+                    '<div class="ui-rotatable-handle" unselectable = "on"' +
+                    'style = "user-select: none; position: absolute; width: 9px; height: 9px; top: 0px; ' +
+                    'left: 0px; cursor: grab; "></div><img style="margin-right:5%;cursor:pointer;width:100px;height:100px;" src="' + ImgArr[ind].src + '" />'
+                $("#drop").append(txt);
+
+                $("#del_" + pIndex).on('click tap touchstart', function (e) {
+                    $('#' + e.currentTarget.parentElement.id).remove();
+                    var rPatch = parseInt($("#rPatch")[0].innerHTML);
+					var aPatch = parseInt($("#aPatch")[0].innerHTML);
+
+					$("#aPatch").html(aPatch - 1);
+					$("#rPatch").html(rPatch + 1);
+                });
+
+                let $target = $('#imageBoxDR_' + ind + '_' + pIndex);
+                /*
+                let $original = $('#Img_' + ind);
+
+                $target.prop("style", $original.attr("style"));
+                var n = parseInt($target[0].style.left.replace("px", "")) + 317;*/
+
+
+                $target[0].style.left = parseInt(event.clientX) - parseInt(20) + "px";
+                $target[0].style.top = parseInt(event.clientY) + parseInt(100) + "px";
+                $('#imageBoxDR_' + ind + '_' + pIndex).show();
+
+                $('#imageBoxDR_' + ind + '_' + pIndex).rotatable().draggable({
+                    zIndex: 100,
+                    revert: 'invalid',
+                    stop: function () {
+                        //$(this).draggable('option', 'revert', 'invalid');
+                    }
+                });
+                $target[0].style.position = "absolute";
+                $("#Img_" + ind).remove();
+                var imgId = 'Img_' + ind;
+                if (ind == 0) {
+                    $("#drag").prepend('<img id="' + imgId + '" style="margin-right:5%;cursor:pointer;width:100px;height:100px;" src="' + ImgArr[ind].src + '" />');
+                }
+                else if (ind == dragArr.length - 1) {
+                    $("#drag").append('<img id="' + imgId + '" style="margin-right:5%;cursor:pointer;width:100px;height:100px;" src="' + ImgArr[ind].src + '" />');
+
+                }
+                else {
+                    var prev = parseInt(ind) - parseInt(1);
+                    var next = parseInt(ind) + parseInt(1);
+                    $('#Img_' + prev + ' + #Img_' + next).before($('<img id="' + imgId + '" style="margin-right:5%;cursor:pointer;width:100px;height:100px;" src="' + ImgArr[ind].src + '" />'));
+                }
+                $('#' + imgId).draggable({
+                    zIndex: 100,
+                    revert: 'invalid',
+                    stop: function () {
+                        //$(this).draggable('option', 'revert', 'invalid');
+                    }
+                });
+                selectImg.push({ id: '#imageBoxDR_' + ind + '_' + pIndex, src: ImgArr[ind].src });
+                var rPatch = parseInt($("#rPatch")[0].innerHTML);
+                var aPatch = parseInt($("#aPatch")[0].innerHTML);
+
+                $("#aPatch").html(aPatch + 1);
+                $("#rPatch").html(rPatch - 1);
+            }
+
+        }
+    });
+
+    $("#export").click(function () {
+        $(".delete-box-amm").attr('style', 'display: none !important');
+        $(".ui-rotatable-handle").attr('style', 'background-color:transparent !important');
+        $("#output").empty();
+        let div =
+            document.getElementById('drop');
+        
+        html2canvas(document.getElementById('drop')).then(
+            function (canvas) {
+                document
+                    .getElementById('output')
+                    .appendChild(canvas);
+            })
+
+        $(".delete-box-amm").attr('style', 'display: block !important');
+        $(".ui-rotatable-handle").attr('style', 'background-color:red !important;user-select: none;position: absolute;width: 9px;height: 9px;top: 0px;left: 0px;cursor: grab;');
+        
+    });
+
+</script>
