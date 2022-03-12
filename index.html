@@ -34,13 +34,13 @@
         </tbody>
     </table>
 </div>
-<button id="export" style="margin-top:20px;" class="btn btn-primary">Export</button>
 <div id="drop" style="z-index:0"></div>
 <div id="drag" style=""></div>
 <div id="reserve"></div>
-@*<div id="canvasDiv">
+<!-- @*<div id="canvasDiv">
     <canvas id="canvas"></canvas>
-</div>*@
+</div>*@ -->
+<button id="export" style="margin-top:20px;background:black; color:white;" class="btn btn-primary">SAVE CUSTOM IMAGE</button>
 <div id="output"></div>
 <script src="Scripts/jquery-3.6.0.min.js"></script>
 <script src="Scripts/jquery-ui.min.js"></script>
@@ -51,14 +51,10 @@
     /*
     var canvas = document.getElementById("canvas"),
         ctx = canvas.getContext("2d");
-
     canvas.width = 500;
     canvas.height = 500;
-
-
     var background = new Image();
     background.src = '../assets/design/t-shirt-white.png';
-
     // Make sure the image is loaded first otherwise nothing will draw.
     background.onload = function () {
         ctx.drawImage(background, 0, 0,500,500);
@@ -84,7 +80,6 @@
         var Id = 'Img_' + ind;//"imageBoxDR" + '_' + ind + '_' + dragArr.length;
 
         $("#drag").append('<img id="' + Id + '" style="margin-right:5%;cursor:pointer;width:100px;height:100px;" src="' + data.url + '" />');
-        //$("#drag").append('<img id="' + Id + '" style="margin-right:5%;cursor:pointer" width=50 src="' + data.url + '" />');
         $('#' + Id).draggable({
             zIndex: 100,
             revert: 'invalid',
@@ -115,12 +110,16 @@
 
                 $("#del_" + pIndex).on('click tap touchstart', function (e) {
                     $('#' + e.currentTarget.parentElement.id).remove();
+                    var rPatch = parseInt($("#rPatch")[0].innerHTML);
+					var aPatch = parseInt($("#aPatch")[0].innerHTML);
+
+					$("#aPatch").html(aPatch - 1);
+					$("#rPatch").html(rPatch + 1);
                 });
 
                 let $target = $('#imageBoxDR_' + ind + '_' + pIndex);
                 /*
                 let $original = $('#Img_' + ind);
-
                 $target.prop("style", $original.attr("style"));
                 var n = parseInt($target[0].style.left.replace("px", "")) + 317;*/
 
