@@ -345,7 +345,7 @@ padding: 3px;
     margin-top: -29px;
     left: 50%;
     margin-left: -10px;
-    background-image: url(./assets/SVG/x.svg)!important;
+    background-image: url(/x.svg)!important;
     display: inline-block!important;
     width: 20px;
     background-position: center;
